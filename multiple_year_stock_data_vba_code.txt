@@ -1,0 +1,150 @@
+Sub stock_calc():
+
+
+Dim WS As Worksheet
+    For Each WS In ActiveWorkbook.Worksheets
+        WS.Activate
+        'Last Row
+        LastRow = WS.Cells(Rows.Count, 1).End(xlUp).Row
+
+        ' Setting column headers
+        Cells(1, 9).Value = "Ticker"
+        Cells(1, 10).Value = "Yearly Change"
+        Cells(1, 11).Value = "Percent Change"
+        Cells(1, 12).Value = "Total Stock Volume"
+        
+        'Define Variables
+        Dim Open_Price As Double
+        Dim Close_Price As Double
+        Dim Yearly_Change As Double
+        Dim Ticker_Name As String
+        Dim Percent_Change As Double
+        
+        Dim Volume As Double
+        Volume = 0
+        
+        Dim Row As Double
+        Row = 2
+        
+        Dim i As Long
+        
+        'Open Price
+        Open_Price = Cells(2, 3).Value
+         
+        
+        For i = 2 To LastRow
+        
+         'Inequal ticker value
+            If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+                
+                ' Set Ticker name
+                Ticker_Name = Cells(i, 1).Value
+                Cells(Row, 9).Value = Ticker_Name
+                ' Set Close Price
+                
+                Close_Price = Cells(i, 6).Value
+               
+         ' Add Yearly Change
+                Yearly_Change = Close_Price - Open_Price
+                Cells(Row, 10).Value = Yearly_Change
+                
+                    ' positive yearly change in red
+                    If Yearly_Change >= 0 Then
+                    Cells(Row, 10).Interior.ColorIndex = 10
+                    Else
+                    'negative yearly change in red
+                    Cells(Row, 10).Interior.ColorIndex = 3
+                    End If
+                
+                ' Add Percent Change
+                If (Open_Price = 0 And Close_Price = 0) Then
+                    Percent_Change = 0
+                ElseIf (Open_Price = 0 And Close_Price <> 0) Then
+                    Percent_Change = 1
+                Else
+                   Percent_Change = Yearly_Change / Open_Price
+                    Cells(Row, 11).Value = Percent_Change
+                    Cells(Row, 11).NumberFormat = "0.00%"
+                End If
+                
+                ' Add the last row to the Total Volume
+                
+                Volume = Volume + Cells(i, 7).Value
+                Cells(Row, 12).Value = Volume
+                
+                ' increment summary row
+                Row = Row + 1
+                
+                ' resetting the Open Price to the next record with the new ticker value
+                Open_Price = Cells(i + 1, 3)
+                
+                ' reset the Volume
+                Volume = 0
+                
+            'if cells are the same ticker value add the volume
+            Else
+                Volume = Volume + Cells(i, 7).Value
+            End If
+        Next i
+        
+      
+          ' Challenge
+           'Greatest % Increase, % Decrease, and Total Volume
+            Cells(2, 15).Value = "Greatest % Increase"
+            Cells(3, 15).Value = "Greatest % Decrease"
+            Cells(4, 15).Value = "Greatest Total Volume"
+            Cells(1, 16).Value = "Ticker"
+            Cells(1, 17).Value = "Value"
+            
+            Dim summary_table_row_count As Integer
+            
+            'Calculate the number of columns in the percent column
+            summary_table_row_count = WS.Cells(Rows.Count, 10).End(xlUp).Row
+            'MsgBox ("summary row count" + Str(summary_table_row_count))
+            'For j = 2 To summary_table_row_count
+            Dim minval As Double
+            Dim maxval As Double
+            Dim totalstockvol As String
+            minval = (Application.WorksheetFunction.Min(Range("K2:K" & summary_table_row_count)))
+            Range("Q3").Value = minval
+            Range("Q3").NumberFormat = "0.00%"
+            
+            'MsgBox (Application.WorksheetFunction.Min(Range("K2:K" & summary_table_row_count)))
+           
+            maxval = (Application.WorksheetFunction.Max(Range("K2:K" & summary_table_row_count)))
+            Range("Q2").Value = maxval
+            Range("Q2").NumberFormat = "0.00%"
+                     
+            
+              
+            'MsgBox volume_row_count
+            totalstockvol = (Application.WorksheetFunction.Max(Range("L2:L" & summary_table_row_count)))
+            Range("Q4").Value = totalstockvol
+            
+            
+            ' Locating the max and min cell position
+        'Dim ThisPos As Range
+        'With Range("K2:K" & summary_table_row_count)
+        'Set ThisPos = .Find(What:=, LookAt:=xlWhole, MatchCase:=False, SearchFormat:=False)
+        'If Not ThisPos Is Nothing Then
+            'Cell_Add = Split(ThisPos.Address, "$")
+            'ThisRow = Cell_Add(1)
+            'ThisCol = Cell_Add(2)
+        'End If
+    'End With
+            
+            'Set myRange = Worksheets("Sheet1").Range("A1:C10")
+            'answer = Application.WorksheetFunction.Min(myRange)
+            'MsgBox answer
+            
+            
+        
+        
+    Next WS
+        
+End Sub
+
+
+
+
+
